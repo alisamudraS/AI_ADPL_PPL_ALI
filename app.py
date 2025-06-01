@@ -2,10 +2,11 @@ from flask import Flask, request, jsonify
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
+import datetime
+import holidays
 
 app = Flask(__name__)
 
-# Load data latih (data.csv saja)
 latihan_model_df = pd.read_csv('data.csv')
 
 def latih_model():
@@ -16,6 +17,15 @@ def latih_model():
     return model
 
 model = latih_model()
+
+def cek_hari_libur(tgl_distribusi):
+    id_holidays = holidays.Indonesia(years=datetime.datetime.now().year)
+    tgl = datetime.datetime.strptime(tgl_distribusi, "%d-%m-%Y")
+    if tgl.weekday() == 6:  # Minggu
+        return 1
+    if tgl in id_holidays:
+        return 1
+    return 0
 
 def hitung_biaya_dengan_persen(berat_buah, jarak, harga_bensin, cuaca, libur, harga_transportasi, total_harga_buah):
     if jarak >= 10:
@@ -42,11 +52,21 @@ def api_hitung_total():
     jarak = float(data.get('jarak'))
     harga_bensin = float(data.get('harga_bensin'))
     cuaca = int(data.get('cuaca'))
-    libur = int(data.get('libur'))
-    total_harga_buah = float(data.get('total_harga_buah'))
+    tgl_distribusi = data.get('tanggal')  # input tanggal dalam format 'dd-mm-yyyy'
+
+    # Cek hari libur berdasarkan tanggal
+    libur = cek_hari_libur(tgl_distribusi)
+
+    # Hitung total harga buah (pakai asumsi 10.000/kg seperti biasa)
+    total_harga_buah = 0
+    for berat in berat_buah:
+        total_harga_buah += float(berat) * 10000
 
     harga_transportasi = hitung_harga_transportasi(jarak, harga_bensin)
-    biaya_libur, biaya_cuaca = hitung_biaya_dengan_persen(berat_buah, jarak, harga_bensin, cuaca, libur, harga_transportasi, total_harga_buah)
+
+    biaya_libur, biaya_cuaca = hitung_biaya_dengan_persen(
+        berat_buah, jarak, harga_bensin, cuaca, libur, harga_transportasi, total_harga_buah)
+
     total_harga = total_harga_buah + harga_transportasi + biaya_libur + biaya_cuaca
 
     return jsonify({'total_harga': total_harga})
