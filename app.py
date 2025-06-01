@@ -49,16 +49,18 @@ def hitung_harga_transportasi(jarak, harga_bensin):
     return jarak * harga_bensin * konsumsi_bensin_per_km
 
 def append_data_to_csv(data_row, csv_path='datalatihreal.csv'):
-    # Jika file belum ada, buat header terlebih dahulu
+    # Cek apakah file sudah ada
     if not os.path.exists(csv_path):
         with open(csv_path, 'w', newline='') as f:
             writer = csv.writer(f)
+            # Tulis header sesuai permintaan
             header = ['berat_buah', 'jarak', 'harga_bensin', 'cuaca', 'libur', 'persentase_cuaca', 'persentase_libur']
             writer.writerow(header)
-    # Append data row
+    # Append data baris baru
     with open(csv_path, 'a', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(data_row)
+
 
 def git_commit_and_push(csv_path='datalatihreal.csv'):
     try:
