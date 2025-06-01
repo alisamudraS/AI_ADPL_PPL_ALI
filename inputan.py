@@ -5,7 +5,7 @@ url = "http://127.0.0.1:5000/api/hitung_total"
 # Contoh data input lengkap
 data_input = {
   "berat_buah": [3.5, 2.0, 1.5],  # Berat buah dalam kg
-  "jarak": 11,
+  "jarak": 6,
   "harga_bensin": 14500,
   "cuaca": 1,
   "tanggal": "01-06-2025"
